@@ -100,10 +100,10 @@ async def validate_proxies(raw):
         for r in await asyncio.gather(*[chk_http(p) for p in http_list]):
             if r: valid["http"].append({"proxy": r[0], "response_time": r[1]})
 
-    for proto, fn in [("socks4", check_socks_proxy), ("socks5", check_socks_proxy)]:
+    for proto in ("socks4", "socks5"):
         sample = random.sample(raw[proto], min(1000, len(raw[proto])))
-        async def chk(p, f=fn, pt=proto):
-            async with sem: return await f(p, 0)
+        async def chk(p, pt=proto):
+            async with sem: return await check_socks_proxy(p, 0)
         for r in await asyncio.gather(*[chk(p) for p in sample]):
             if r: valid[proto].append({"proxy": r[0], "response_time": r[1]})
 
@@ -111,7 +111,7 @@ async def validate_proxies(raw):
     return valid
 
 async def enrich_with_geo(proxies_flat):
-    print(f"🌍 Enriching geo info...")
+    print(f"🌍 Enriching geo info for {len(proxies_flat)} proxies...")
     ip_to_info = {}
     ips = list({p.split(":")[0] for p in proxies_flat})
     async with aiohttp.ClientSession() as session:
@@ -125,6 +125,7 @@ async def enrich_with_geo(proxies_flat):
             except Exception:
                 pass
             await asyncio.sleep(1.4)
+    print(f"   Geo enriched: {len(ip_to_info)} IPs")
     return ip_to_info
 
 def build_metadata(valid, geo):
@@ -133,14 +134,25 @@ def build_metadata(valid, geo):
         for e in entries:
             ip, port = e["proxy"].split(":")[0], e["proxy"].split(":")[1]
             g = geo.get(ip, {})
-            metadata.append({"status": "success" if g else "unknown",
-                "country": g.get("country","Unknown"), "countryCode": g.get("countryCode","XX"),
-                "region": g.get("region",""), "regionName": g.get("regionName",""),
-                "city": g.get("city",""), "zip": g.get("zip",""),
-                "lat": g.get("lat",0), "lon": g.get("lon",0),
-                "timezone": g.get("timezone",""), "isp": g.get("isp",""),
-                "org": g.get("org",""), "as": g.get("as",""),
-                "query": ip, "type": proto, "port": port, "response_time": e["response_time"]})
+            metadata.append({
+                "status": "success" if g else "unknown",
+                "country": g.get("country", "Unknown"),
+                "countryCode": g.get("countryCode", "XX"),
+                "region": g.get("region", ""),
+                "regionName": g.get("regionName", ""),
+                "city": g.get("city", ""),
+                "zip": g.get("zip", ""),
+                "lat": g.get("lat", 0),
+                "lon": g.get("lon", 0),
+                "timezone": g.get("timezone", ""),
+                "isp": g.get("isp", ""),
+                "org": g.get("org", ""),
+                "as": g.get("as", ""),
+                "query": ip,
+                "type": proto,
+                "port": port,
+                "response_time": e["response_time"],
+            })
     return metadata
 
 def save_files(valid, metadata):
@@ -148,48 +160,97 @@ def save_files(valid, metadata):
     os.makedirs(FILES_DIR, exist_ok=True)
     os.makedirs(os.path.join(FILES_DIR, "countries"), exist_ok=True)
     os.makedirs(os.path.join(FILES_DIR, "metadata"), exist_ok=True)
+
     pl = lambda e: [x["proxy"] for x in e]
 
-    for proto in ("http","socks4","socks5"):
+    # Protocol files (simple proxy lists)
+    for proto in ("http", "socks4", "socks5"):
         with open(os.path.join(FILES_DIR, f"{proto}.json"), "w") as f:
-            json.dump({"proxies": pl(valid[proto])}, f, separators=(",",":"))
+            json.dump({"proxies": pl(valid[proto])}, f, separators=(",", ":"))
 
+    # Combined
     all_p = pl(valid["http"]) + pl(valid["socks4"]) + pl(valid["socks5"])
     with open(os.path.join(FILES_DIR, "proxies.json"), "w") as f:
-        json.dump({"proxies": all_p}, f, separators=(",",":"))
+        json.dump({"proxies": all_p}, f, separators=(",", ":"))
+
+    # Random sample
     with open(os.path.join(FILES_DIR, "random.json"), "w") as f:
-        json.dump({"proxies": random.sample(all_p, min(10, len(all_p)))}, f, separators=(",",":"))
+        json.dump({"proxies": random.sample(all_p, min(10, len(all_p)))}, f, separators=(",", ":"))
+
+    # Full metadata
     with open(os.path.join(FILES_DIR, "metadata.json"), "w") as f:
-        json.dump(metadata, f, separators=(",",":"))
+        json.dump(metadata, f, separators=(",", ":"))
 
-    for proto in ("http","socks4","socks5"):
+    # Per-protocol metadata
+    for proto in ("http", "socks4", "socks5"):
         with open(os.path.join(FILES_DIR, "metadata", f"{proto}-metadata.json"), "w") as f:
-            json.dump([m for m in metadata if m["type"]==proto], f, separators=(",",":"))
+            json.dump([m for m in metadata if m["type"] == proto], f, separators=(",", ":"))
 
+    # Per-country files — RICH FORMAT matching giftedtech style
     by_country = defaultdict(list)
     for m in metadata:
-        by_country[m.get("countryCode","XX")].append(f"{m['query']}:{m['port']}")
-    for code, proxies in by_country.items():
-        with open(os.path.join(FILES_DIR, "countries", f"{code}.json"), "w") as f:
-            json.dump({"proxies": proxies}, f, separators=(",",":"))
+        code = m.get("countryCode") or "XX"
+        by_country[code].append(m)
 
+    for code, entries in by_country.items():
+        country_name = entries[0].get("country", "Unknown")
+        rich_proxies = []
+        for m in entries:
+            rich_proxies.append({
+                "status": m["status"],
+                "country": m["country"],
+                "countryCode": m["countryCode"],
+                "region": m["region"],
+                "regionName": m["regionName"],
+                "city": m["city"],
+                "zip": m["zip"],
+                "lat": m["lat"],
+                "lon": m["lon"],
+                "timezone": m["timezone"],
+                "isp": m["isp"],
+                "org": m["org"],
+                "as": m["as"],
+                "query": m["query"],
+                "type": m["type"],
+                "port": m["port"],
+                "response_time": m["response_time"],
+            })
+        country_data = {
+            "countryCode": code,
+            "country": country_name,
+            "count": len(rich_proxies),
+            "proxies": rich_proxies,
+        }
+        with open(os.path.join(FILES_DIR, "countries", f"{code}.json"), "w") as f:
+            json.dump(country_data, f, separators=(",", ":"))
+
+    # Timestamp
     now = datetime.now(timezone.utc)
     with open(os.path.join(FILES_DIR, "timestamp.json"), "w") as f:
-        json.dump({"updated": now.strftime("%A %d-%m-%Y %H:%M:%S EAT"), "unix": int(now.timestamp())}, f, separators=(",",":"))
+        json.dump({
+            "updated": now.strftime("%A %d-%m-%Y %H:%M:%S EAT"),
+            "unix": int(now.timestamp())
+        }, f, separators=(",", ":"))
 
     h, s4, s5, c = len(valid["http"]), len(valid["socks4"]), len(valid["socks5"]), len(by_country)
-    print(f"\n🎉 Done! Total: {len(all_p)} | HTTP: {h} | SOCKS4: {s4} | SOCKS5: {s5} | Countries: {c}")
-    return len(all_p), h, s4, s5, c
+    total = len(all_p)
+    print(f"\n🎉 Done! Total: {total} | HTTP: {h} | SOCKS4: {s4} | SOCKS5: {s5} | Countries: {c}")
+    return total, h, s4, s5, c
 
 def update_readme(total, h, s4, s5, c):
     now = datetime.now(timezone.utc).strftime("%A %d-%m-%Y %H:%M:%S EAT")
     with open(os.path.join(FILES_DIR, "..", "README.md"), "w") as f:
-        f.write(f"# free-proxies\n\n> **{total} working validated proxies** last updated on **{now}**\n\n"
-                f"![HTTP](https://img.shields.io/badge/HTTP-{h}-blue?style=flat-square) "
-                f"![SOCKS4](https://img.shields.io/badge/SOCKS4-{s4}-green?style=flat-square) "
-                f"![SOCKS5](https://img.shields.io/badge/SOCKS5-{s5}-purple?style=flat-square) "
-                f"![Countries](https://img.shields.io/badge/Countries-{c}-orange?style=flat-square)\n\n"
-                f"🌐 Access Proxies [Here](https://proxies.obedtech.top)\n")
+        f.write(
+            f"# free-proxies\n\n"
+            f"> **{total} working validated proxies** last updated on **{now}**\n\n"
+            f"Free, continuously validated **HTTP**, **SOCKS4** and **SOCKS5** proxies tested live "
+            f"and organised by protocol and country. Updated every **30 mins**.\n\n"
+            f"![HTTP](https://img.shields.io/badge/HTTP-{h}-blue?style=flat-square) "
+            f"![SOCKS4](https://img.shields.io/badge/SOCKS4-{s4}-green?style=flat-square) "
+            f"![SOCKS5](https://img.shields.io/badge/SOCKS5-{s5}-purple?style=flat-square) "
+            f"![Countries](https://img.shields.io/badge/Countries-{c}-orange?style=flat-square)\n\n"
+            f"🌐 Access Proxies [Here](https://proxies.obedtech.top)\n"
+        )
     print("📝 README updated")
 
 async def main():
