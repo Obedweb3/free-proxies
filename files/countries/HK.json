@@ -1,0 +1,45 @@
+{
+    "countryCode": "HK",
+    "country": "Hong Kong",
+    "count": 2,
+    "proxies": [
+        {
+            "status": "success",
+            "country": "Hong Kong",
+            "countryCode": "HK",
+            "region": "",
+            "regionName": "Kowloon",
+            "city": "Hong Kong",
+            "zip": "999077",
+            "lat": 22.3193,
+            "lon": 114.169,
+            "timezone": "Asia/Hong_Kong",
+            "isp": "UCLOUD INFORMATION TECHNOLOGY (HK) LIMITED",
+            "org": "Ucloud Information Technology (hk) Limited",
+            "as": "AS135377 UCLOUD INFORMATION TECHNOLOGY (HK) LIMITED",
+            "query": "152.32.132.190",
+            "type": "http",
+            "port": "7890",
+            "response_time": 1.32
+        },
+        {
+            "status": "success",
+            "country": "Hong Kong",
+            "countryCode": "HK",
+            "region": "",
+            "regionName": "Kowloon",
+            "city": "Hong Kong",
+            "zip": "999077",
+            "lat": 22.3193,
+            "lon": 114.169,
+            "timezone": "Asia/Hong_Kong",
+            "isp": "UCLOUD INFORMATION TECHNOLOGY (HK) LIMITED",
+            "org": "Ucloud HK",
+            "as": "AS135377 UCLOUD INFORMATION TECHNOLOGY (HK) LIMITED",
+            "query": "103.210.22.17",
+            "type": "http",
+            "port": "3128",
+            "response_time": 7.31
+        }
+    ]
+}
