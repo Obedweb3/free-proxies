@@ -17,7 +17,7 @@ jobs:
       - name: 📥 Checkout repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN }}
 
       - name: 🐍 Set up Python
         uses: actions/setup-python@v5
@@ -32,8 +32,8 @@ jobs:
 
       - name: 💾 Commit and push
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "Obedweb3"
+          git config user.email "obedweb3@users.noreply.github.com"
           git add files/ README.md
           git diff --cached --quiet || git commit -m "🔄 Auto-update proxies - $(date +'%Y-%m-%d %H:%M UTC')"
           git push
