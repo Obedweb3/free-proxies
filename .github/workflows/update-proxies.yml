@@ -2,10 +2,8 @@ name: Update Proxies
 
 on:
   schedule:
-    # Runs every 30 minutes
     - cron: "*/30 * * * *"
   workflow_dispatch:
-    # Allows manual trigger from GitHub Actions tab
 
 permissions:
   contents: write
@@ -27,26 +25,12 @@ jobs:
           python-version: "3.11"
 
       - name: 📦 Install dependencies
-        run: |
-          pip install -r requirements.txt
+        run: pip install aiohttp
 
       - name: 🔄 Run proxy updater
         run: python scripts/update_proxies.py
 
-      - name: 📊 Show results
-        run: |
-          echo "=== Proxy counts ==="
-          python -c "
-          import json
-          with open('files/proxies.json') as f:
-              d = json.load(f)
-          print(f'Total proxies: {len(d[\"proxies\"])}')
-          with open('files/timestamp.json') as f:
-              t = json.load(f)
-          print(f'Updated at: {t[\"updated\"]}')
-          "
-
-      - name: 💾 Commit and push updated files
+      - name: 💾 Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
