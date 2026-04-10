@@ -1,0 +1,26 @@
+{
+    "countryCode": "SK",
+    "country": "Slovakia",
+    "count": 1,
+    "proxies": [
+        {
+            "status": "success",
+            "country": "Slovakia",
+            "countryCode": "SK",
+            "region": "PV",
+            "regionName": "Pre\u0161ov Region",
+            "city": "Dukovce",
+            "zip": "086 44",
+            "lat": 49.1184,
+            "lon": 21.4131,
+            "timezone": "Europe/Bratislava",
+            "isp": "DELTA ONLINE spol. s r.o.",
+            "org": "Probasec-Net s.r.o",
+            "as": "AS34820 DELTA ONLINE spol. s r.o.",
+            "query": "185.225.204.5",
+            "type": "http",
+            "port": "3128",
+            "response_time": 4.36
+        }
+    ]
+}

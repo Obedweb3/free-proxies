@@ -1,0 +1,26 @@
+{
+    "countryCode": "YE",
+    "country": "Yemen",
+    "count": 1,
+    "proxies": [
+        {
+            "status": "success",
+            "country": "Yemen",
+            "countryCode": "YE",
+            "region": "SA",
+            "regionName": "Amanat Alasimah",
+            "city": "Sanaa",
+            "zip": "",
+            "lat": 15.3522,
+            "lon": 44.2095,
+            "timezone": "Asia/Aden",
+            "isp": "Yemen-net-bb-pool 178",
+            "org": "Aljoraf area - Airport street",
+            "as": "AS30873 Public Telecommunication Corporation",
+            "query": "178.130.84.184",
+            "type": "socks4",
+            "port": "1080",
+            "response_time": 8.38
+        }
+    ]
+}

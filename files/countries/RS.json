@@ -1,0 +1,26 @@
+{
+    "countryCode": "RS",
+    "country": "Serbia",
+    "count": 1,
+    "proxies": [
+        {
+            "status": "success",
+            "country": "Serbia",
+            "countryCode": "RS",
+            "region": "00",
+            "regionName": "Belgrade",
+            "city": "Belgrade",
+            "zip": "",
+            "lat": 44.8046,
+            "lon": 20.4637,
+            "timezone": "Europe/Belgrade",
+            "isp": "TELEKOM SRBIJA a.d.",
+            "org": "x KGB SYSTEM PLUS DOO KRAGUJEVAC x",
+            "as": "AS8400 TELEKOM SRBIJA a.d.",
+            "query": "91.150.67.17",
+            "type": "http",
+            "port": "8080",
+            "response_time": 3.79
+        }
+    ]
+}
