@@ -1,9 +1,9 @@
 # free-proxies
 
-> **1103 working validated proxies** last updated on **Monday 27-04-2026 23:33:01 EAT**
+> **1135 working validated proxies** last updated on **Tuesday 28-04-2026 03:52:47 EAT**
 
 Free, continuously validated **HTTP**, **SOCKS4** and **SOCKS5** proxies tested live and organised by protocol and country. Updated every **30 mins**.
 
-![HTTP](https://img.shields.io/badge/HTTP-24-blue?style=flat-square) ![SOCKS4](https://img.shields.io/badge/SOCKS4-475-green?style=flat-square) ![SOCKS5](https://img.shields.io/badge/SOCKS5-604-purple?style=flat-square) ![Countries](https://img.shields.io/badge/Countries-63-orange?style=flat-square)
+![HTTP](https://img.shields.io/badge/HTTP-37-blue?style=flat-square) ![SOCKS4](https://img.shields.io/badge/SOCKS4-528-green?style=flat-square) ![SOCKS5](https://img.shields.io/badge/SOCKS5-570-purple?style=flat-square) ![Countries](https://img.shields.io/badge/Countries-65-orange?style=flat-square)
 
 🌐 Access Proxies [Here](https://proxies.obedtech.top)
